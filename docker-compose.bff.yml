@@ -1,0 +1,121 @@
+
+services:
+  # Platform BFF - Serves Member Portal
+  platform-bff:
+    build:
+      context: ./platform-bff
+      dockerfile: Dockerfile
+    container_name: association-platform-bff
+    ports:
+      - "${PLATFORM_BFF_PORT:-3001}:3000"
+    environment:
+      - NODE_ENV=${NODE_ENV:-development}
+      - PORT=3000
+      - PLATFORM_API_URL=${PLATFORM_API_URL:-http://association-platform-api/api}
+      - REDIS_URL=redis://association-platform-redis:6379
+      - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:3000,http://localhost:3100}
+      - JWT_SECRET=${JWT_SECRET:-your_jwt_secret_here}
+      - LOG_LEVEL=${LOG_LEVEL:-debug}
+    volumes:
+      - ./platform-bff/src:/app/src
+      - platform_bff_node_modules:/app/node_modules
+    networks:
+      - association-platform_default
+    # External dependencies via network
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.platform-bff.rule=Host(`bff.localhost`) && PathPrefix(`/platform`)"
+      - "traefik.http.routers.platform-bff.entrypoints=web"
+      - "traefik.http.services.platform-bff.loadbalancer.server.port=3000"
+      - "traefik.http.middlewares.platform-bff-strip.stripprefix.prefixes=/platform"
+      - "traefik.http.routers.platform-bff.middlewares=platform-bff-strip"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Operator BFF - Serves Operator Dashboard
+  operator-bff:
+    build:
+      context: ./operator-bff
+      dockerfile: Dockerfile
+    container_name: association-operator-bff
+    ports:
+      - "${OPERATOR_BFF_PORT:-3002}:3000"
+    environment:
+      - NODE_ENV=${NODE_ENV:-development}
+      - PORT=3000
+      - OPERATOR_API_URL=${OPERATOR_API_URL:-http://association-operator-api/api}
+      - PLATFORM_API_URL=${PLATFORM_API_URL:-http://association-platform-api/api}
+      - REDIS_URL=redis://association-platform-redis:6379
+      - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:3200}
+      - JWT_SECRET=${JWT_SECRET:-your_jwt_secret_here}
+      - LOG_LEVEL=${LOG_LEVEL:-debug}
+    volumes:
+      - ./operator-bff/src:/app/src
+      - operator_bff_node_modules:/app/node_modules
+    networks:
+      - association-platform_default
+    # External dependencies via network
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.operator-bff.rule=Host(`bff.localhost`) && PathPrefix(`/operator`)"
+      - "traefik.http.routers.operator-bff.entrypoints=web"
+      - "traefik.http.services.operator-bff.loadbalancer.server.port=3000"
+      - "traefik.http.middlewares.operator-bff-strip.stripprefix.prefixes=/operator"
+      - "traefik.http.routers.operator-bff.middlewares=operator-bff-strip"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Association BFF - Serves Association Dashboard
+  association-bff:
+    build:
+      context: ./association-bff
+      dockerfile: Dockerfile
+    container_name: association-association-bff
+    ports:
+      - "${ASSOCIATION_BFF_PORT:-3003}:3000"
+    environment:
+      - NODE_ENV=${NODE_ENV:-development}
+      - PORT=3000
+      - PLATFORM_API_URL=${PLATFORM_API_URL:-http://association-platform-api/api}
+      - REDIS_URL=redis://association-platform-redis:6379
+      - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:3300}
+      - JWT_SECRET=${JWT_SECRET:-your_jwt_secret_here}
+      - LOG_LEVEL=${LOG_LEVEL:-debug}
+    volumes:
+      - ./association-bff/src:/app/src
+      - association_bff_node_modules:/app/node_modules
+    networks:
+      - association-platform_default
+    # External dependencies via network
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.association-bff.rule=Host(`bff.localhost`) && PathPrefix(`/association`)"
+      - "traefik.http.routers.association-bff.entrypoints=web"
+      - "traefik.http.services.association-bff.loadbalancer.server.port=3000"
+      - "traefik.http.middlewares.association-bff-strip.stripprefix.prefixes=/association"
+      - "traefik.http.routers.association-bff.middlewares=association-bff-strip"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+# External network from infrastructure
+networks:
+  association-platform_default:
+    external: true
+    name: association-platform_default
+
+volumes:
+  platform_bff_node_modules:
+  operator_bff_node_modules:
+  association_bff_node_modules:
