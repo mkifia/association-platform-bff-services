@@ -1,0 +1,73 @@
+version: 2
+updates:
+  # Platform BFF
+  - package-ecosystem: "npm"
+    directory: "/platform-bff"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "association-platform/fullstack-team"
+    assignees:
+      - "association-platform/fullstack-team"
+    commit-message:
+      prefix: "npm"
+      include: "scope"
+
+  # Operator BFF
+  - package-ecosystem: "npm"
+    directory: "/operator-bff"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "association-platform/fullstack-team"
+    assignees:
+      - "association-platform/fullstack-team"
+    commit-message:
+      prefix: "npm"
+      include: "scope"
+
+  # Association BFF
+  - package-ecosystem: "npm"
+    directory: "/association-bff"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "association-platform/fullstack-team"
+    assignees:
+      - "association-platform/fullstack-team"
+    commit-message:
+      prefix: "npm"
+      include: "scope"
+
+  # Docker
+  - package-ecosystem: "docker"
+    directory: "/platform-bff"
+    schedule:
+      interval: "weekly"
+    reviewers:
+      - "association-platform/devops-team"
+
+  - package-ecosystem: "docker"
+    directory: "/operator-bff"
+    schedule:
+      interval: "weekly"
+    reviewers:
+      - "association-platform/devops-team"
+
+  - package-ecosystem: "docker"
+    directory: "/association-bff"
+    schedule:
+      interval: "weekly"
+    reviewers:
+      - "association-platform/devops-team"
+
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    reviewers:
+      - "association-platform/devops-team"
